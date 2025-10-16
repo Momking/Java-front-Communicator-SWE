@@ -17,6 +17,8 @@ import com.conferencing.views.LoginPage;
 import com.conferencing.views.MainPage;
 import com.conferencing.views.MeetingInterface;
 import com.conferencing.views.RegisterPage;
+import com.controller.AuthService;
+import com.controller.UserProfile;
 
 public class App {
     private JFrame frame;
@@ -27,6 +29,10 @@ public class App {
     private int currentIndex = -1;
     private CustomButton backButton;
     private CustomButton forwardButton;
+    
+    // Authentication service and current user
+    private final AuthService authService;
+    private UserProfile currentUser;
 
     public static final String LOGIN_PAGE = "Login";
     public static final String REGISTER_PAGE = "Register";
@@ -34,8 +40,21 @@ public class App {
     public static final String MEETING_PAGE = "Meeting";
 
     public App() {
+        this.authService = new AuthService();
         initComponents();
         ThemeManager.getInstance().setApp(this);
+    }
+    
+    public AuthService getAuthService() {
+        return authService;
+    }
+    
+    public UserProfile getCurrentUser() {
+        return currentUser;
+    }
+    
+    public void setCurrentUser(UserProfile user) {
+        this.currentUser = user;
     }
 
     private void initComponents() {

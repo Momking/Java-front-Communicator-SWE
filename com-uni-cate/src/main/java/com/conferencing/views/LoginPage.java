@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
@@ -21,6 +22,7 @@ import com.conferencing.ui.CustomButton;
 import com.conferencing.ui.PlaceholderPasswordField;
 import com.conferencing.ui.PlaceholderTextField;
 import com.conferencing.ui.ThemeToggleButton;
+import com.controller.UserProfile;
 
 public class LoginPage extends JPanel {
 
@@ -72,17 +74,17 @@ public class LoginPage extends JPanel {
         leftGbc.gridwidth = 2;
         leftPanel.add(loginTitle, leftGbc);
 
-        JLabel loginSubtitle = new JLabel("Sign in to start your meeting");
+        JLabel loginSubtitle = new JLabel("Use your @iitpkd.ac.in or @smail.iitpkd.ac.in email");
         loginSubtitle.setFont(new Font("SansSerif", Font.PLAIN, 14));
         leftGbc.gridy = 1;
         leftGbc.insets = new Insets(0, 10, 20, 10);
         leftPanel.add(loginSubtitle, leftGbc);
 
-        PlaceholderTextField usernameField = new PlaceholderTextField("Username");
-        usernameField.setPreferredSize(new Dimension(350, 45));
+        PlaceholderTextField emailField = new PlaceholderTextField("Email (e.g. user@iitpkd.ac.in)");
+        emailField.setPreferredSize(new Dimension(350, 45));
         leftGbc.gridy = 2;
         leftGbc.insets = new Insets(10, 10, 10, 10);
-        leftPanel.add(usernameField, leftGbc);
+        leftPanel.add(emailField, leftGbc);
         
         PlaceholderPasswordField passwordField = new PlaceholderPasswordField("Password");
         passwordField.setPreferredSize(new Dimension(350, 45));
@@ -104,7 +106,31 @@ public class LoginPage extends JPanel {
 
         CustomButton loginButton = new CustomButton("Sign In", true);
         loginButton.setPreferredSize(new Dimension(350, 45));
-        loginButton.addActionListener(e -> app.showPage(App.MAIN_PAGE));
+        loginButton.addActionListener(e -> {
+            String email = emailField.getText().trim();
+            String password = new String(passwordField.getPassword());
+            
+            if (email.isEmpty() || password.isEmpty()) {
+                JOptionPane.showMessageDialog(this, 
+                    "Please enter both email and password", 
+                    "Login Error", 
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            UserProfile user = app.getAuthService().login(email, password);
+            if (user != null) {
+                app.setCurrentUser(user);
+                emailField.setText("");
+                passwordField.setText("");
+                app.showPage(App.MAIN_PAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, 
+                    "Invalid email or password", 
+                    "Login Failed", 
+                    JOptionPane.ERROR_MESSAGE);
+            }
+        });
         leftGbc.gridy = 5;
         leftGbc.insets = new Insets(10, 10, 10, 10);
         leftGbc.gridwidth = 1;

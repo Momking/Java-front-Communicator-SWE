@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
@@ -21,6 +22,7 @@ import com.conferencing.ui.CustomButton;
 import com.conferencing.ui.PlaceholderPasswordField;
 import com.conferencing.ui.PlaceholderTextField;
 import com.conferencing.ui.ThemeToggleButton;
+import com.controller.UserProfile;
 
 public class RegisterPage extends JPanel {
 
@@ -72,17 +74,17 @@ public class RegisterPage extends JPanel {
         leftGbc.gridwidth = 2;
         leftPanel.add(registerTitle, leftGbc);
 
-        JLabel registerSubtitle = new JLabel("Join us for seamless video meetings");
+        JLabel registerSubtitle = new JLabel("Use your @iitpkd.ac.in or @smail.iitpkd.ac.in email");
         registerSubtitle.setFont(new Font("SansSerif", Font.PLAIN, 14));
         leftGbc.gridy = 1;
         leftGbc.insets = new Insets(0, 10, 15, 10);
         leftPanel.add(registerSubtitle, leftGbc);
 
-        PlaceholderTextField usernameField = new PlaceholderTextField("Username");
-        usernameField.setPreferredSize(new Dimension(350, 45));
+        PlaceholderTextField emailField = new PlaceholderTextField("Email (e.g. user@iitpkd.ac.in)");
+        emailField.setPreferredSize(new Dimension(350, 45));
         leftGbc.gridy = 2;
         leftGbc.insets = new Insets(8, 10, 8, 10);
-        leftPanel.add(usernameField, leftGbc);
+        leftPanel.add(emailField, leftGbc);
         
         PlaceholderPasswordField passwordField = new PlaceholderPasswordField("Password");
         passwordField.setPreferredSize(new Dimension(350, 45));
@@ -114,7 +116,46 @@ public class RegisterPage extends JPanel {
 
         CustomButton registerButton = new CustomButton("Create Account", true);
         registerButton.setPreferredSize(new Dimension(350, 45));
-        registerButton.addActionListener(e -> app.showPage(App.MAIN_PAGE));
+        registerButton.addActionListener(e -> {
+            String email = emailField.getText().trim();
+            String password = new String(passwordField.getPassword());
+            String displayName = displayNameField.getText().trim();
+            String logoUrl = logoURLField.getText().trim();
+            
+            // Validation
+            if (email.isEmpty() || password.isEmpty() || displayName.isEmpty()) {
+                JOptionPane.showMessageDialog(this, 
+                    "Please fill in all required fields (email, password, and display name)", 
+                    "Registration Error", 
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            // Use empty string if logoUrl is not provided
+            if (logoUrl.isEmpty()) {
+                logoUrl = "";
+            }
+            
+            UserProfile user = app.getAuthService().register(email, password, displayName, logoUrl);
+            if (user != null) {
+                app.setCurrentUser(user);
+                JOptionPane.showMessageDialog(this, 
+                    "Registration successful! Welcome, " + displayName + "!", 
+                    "Success", 
+                    JOptionPane.INFORMATION_MESSAGE);
+                emailField.setText("");
+                passwordField.setText("");
+                displayNameField.setText("");
+                logoURLField.setText("");
+                app.showPage(App.MAIN_PAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, 
+                    "Registration failed. Email may already be registered or invalid.\n" +
+                    "Please use @iitpkd.ac.in or @smail.iitpkd.ac.in email.", 
+                    "Registration Failed", 
+                    JOptionPane.ERROR_MESSAGE);
+            }
+        });
         leftGbc.gridy = 7;
         leftGbc.insets = new Insets(8, 10, 8, 10);
         leftGbc.gridwidth = 1;

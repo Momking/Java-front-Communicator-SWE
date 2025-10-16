@@ -26,6 +26,7 @@ import com.conferencing.ui.CustomButton;
 import com.conferencing.ui.PlaceholderTextField;
 import com.conferencing.ui.ThemeToggleButton;
 import com.conferencing.ui.TitledPanel;
+import com.controller.UserProfile;
 
 public class MainPage extends JPanel {
 
@@ -57,7 +58,14 @@ public class MainPage extends JPanel {
         headerPanel.add(dateTimeLabel, BorderLayout.CENTER);
         dateTimeLabel.setHorizontalAlignment(JLabel.CENTER);
 
-        userInitialLabel = new JLabel("Y") {
+        // Get user initial from current user
+        UserProfile currentUser = app.getCurrentUser();
+        String initial = "?";
+        if (currentUser != null && currentUser.getDisplayName() != null && !currentUser.getDisplayName().isEmpty()) {
+            initial = currentUser.getDisplayName().substring(0, 1).toUpperCase();
+        }
+        
+        userInitialLabel = new JLabel(initial) {
              @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -73,6 +81,12 @@ public class MainPage extends JPanel {
         userInitialLabel.setVerticalAlignment(JLabel.CENTER);
         userInitialLabel.setPreferredSize(new Dimension(40, 40));
         userInitialLabel.setOpaque(false);
+        
+        // Add tooltip with full name
+        if (currentUser != null) {
+            userInitialLabel.setToolTipText(currentUser.getDisplayName() + " (" + currentUser.getRole() + ")");
+        }
+        
         headerPanel.add(userInitialLabel, BorderLayout.EAST);
         add(headerPanel, BorderLayout.NORTH);
 
