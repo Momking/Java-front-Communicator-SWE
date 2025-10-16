@@ -12,12 +12,15 @@ com/conferencing/views/LoginPage.class
 com/conferencing/views/MainPage$1.class
 com/conferencing/views/RegisterPage.class
 com/conferencing/views/MeetingInterface$ParticipantPanel.class
+com/conferencing/service/ControllerService.class
+com/conferencing/views/MainPage$3.class
 com/conferencing/theme/ThemeManager.class
 com/controller/CloudStorageAdapter.class
 com/conferencing/theme/Theme.class
 com/conferencing/views/MainPage.class
 com/controller/MeetingSession.class
 com/conferencing/ui/PlaceholderPasswordField.class
+com/conferencing/views/MainPage$2.class
 com/conferencing/ui/PlaceholderPasswordField$1.class
 com/conferencing/theme/DarkTheme.class
 com/conferencing/ui/PlaceholderTextField$1.class

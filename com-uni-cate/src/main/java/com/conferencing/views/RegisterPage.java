@@ -136,9 +136,8 @@ public class RegisterPage extends JPanel {
                 logoUrl = "";
             }
             
-            UserProfile user = app.getAuthService().register(email, password, displayName, logoUrl);
+            UserProfile user = app.getControllerService().register(email, password, displayName, logoUrl);
             if (user != null) {
-                app.setCurrentUser(user);
                 JOptionPane.showMessageDialog(this, 
                     "Registration successful! Welcome, " + displayName + "!", 
                     "Success", 

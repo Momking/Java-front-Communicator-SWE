@@ -11,13 +11,13 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
+import com.conferencing.service.ControllerService;
 import com.conferencing.theme.ThemeManager;
 import com.conferencing.ui.CustomButton;
 import com.conferencing.views.LoginPage;
 import com.conferencing.views.MainPage;
 import com.conferencing.views.MeetingInterface;
 import com.conferencing.views.RegisterPage;
-import com.controller.AuthService;
 import com.controller.UserProfile;
 
 public class App {
@@ -30,9 +30,8 @@ public class App {
     private CustomButton backButton;
     private CustomButton forwardButton;
     
-    // Authentication service and current user
-    private final AuthService authService;
-    private UserProfile currentUser;
+    // Controller service for managing authentication and meetings
+    private final ControllerService controllerService;
 
     public static final String LOGIN_PAGE = "Login";
     public static final String REGISTER_PAGE = "Register";
@@ -40,21 +39,21 @@ public class App {
     public static final String MEETING_PAGE = "Meeting";
 
     public App() {
-        this.authService = new AuthService();
+        this.controllerService = ControllerService.getInstance();
         initComponents();
         ThemeManager.getInstance().setApp(this);
     }
     
-    public AuthService getAuthService() {
-        return authService;
+    public ControllerService getControllerService() {
+        return controllerService;
     }
     
     public UserProfile getCurrentUser() {
-        return currentUser;
+        return controllerService.getCurrentUser();
     }
     
     public void setCurrentUser(UserProfile user) {
-        this.currentUser = user;
+        controllerService.setCurrentUser(user);
     }
 
     private void initComponents() {

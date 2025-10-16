@@ -118,9 +118,8 @@ public class LoginPage extends JPanel {
                 return;
             }
             
-            UserProfile user = app.getAuthService().login(email, password);
+            UserProfile user = app.getControllerService().login(email, password);
             if (user != null) {
-                app.setCurrentUser(user);
                 emailField.setText("");
                 passwordField.setText("");
                 app.showPage(App.MAIN_PAGE);

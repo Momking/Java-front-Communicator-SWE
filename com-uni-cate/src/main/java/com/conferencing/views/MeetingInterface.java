@@ -112,8 +112,8 @@ public class MeetingInterface extends JPanel {
 
         buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
         buttonPanel.add(new CustomButton("Video", false));
-        buttonPanel.add(new CustomButton("Mic", false));
-        buttonPanel.add(new CustomButton("Sound", false));
+        buttonPanel.add(new CustomButton("Canvas", false));
+        buttonPanel.add(new CustomButton("Participants", false));
         buttonPanel.add(new CustomButton("Share", false));
         
         CustomButton endCallButton = new CustomButton("End", true);

@@ -15,8 +15,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.border.EmptyBorder;
 
 import com.conferencing.App;
@@ -36,6 +38,7 @@ public class MainPage extends JPanel {
     private JPanel centerPanel;
     private JPanel meetingControlsPanel;
     private JPanel themePanelWrapper;
+    private CustomButton newMeetingButton;
 
     public MainPage(App app) {
         this.app = app;
@@ -58,14 +61,8 @@ public class MainPage extends JPanel {
         headerPanel.add(dateTimeLabel, BorderLayout.CENTER);
         dateTimeLabel.setHorizontalAlignment(JLabel.CENTER);
 
-        // Get user initial from current user
-        UserProfile currentUser = app.getCurrentUser();
-        String initial = "?";
-        if (currentUser != null && currentUser.getDisplayName() != null && !currentUser.getDisplayName().isEmpty()) {
-            initial = currentUser.getDisplayName().substring(0, 1).toUpperCase();
-        }
-        
-        userInitialLabel = new JLabel(initial) {
+        // Create user initial label (will be updated when page is shown)
+        userInitialLabel = new JLabel("?") {
              @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -81,11 +78,15 @@ public class MainPage extends JPanel {
         userInitialLabel.setVerticalAlignment(JLabel.CENTER);
         userInitialLabel.setPreferredSize(new Dimension(40, 40));
         userInitialLabel.setOpaque(false);
+        userInitialLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         
-        // Add tooltip with full name
-        if (currentUser != null) {
-            userInitialLabel.setToolTipText(currentUser.getDisplayName() + " (" + currentUser.getRole() + ")");
-        }
+        // Add click listener to show profile dropdown
+        userInitialLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                showProfileDropdown(evt);
+            }
+        });
         
         headerPanel.add(userInitialLabel, BorderLayout.EAST);
         add(headerPanel, BorderLayout.NORTH);
@@ -101,7 +102,7 @@ public class MainPage extends JPanel {
         appTitle.setFont(new Font("SansSerif", Font.BOLD, 48));
         appTitle.setHorizontalAlignment(JLabel.CENTER);
         centerPanel.add(appTitle, gbc);
-
+        
         JLabel subtitle = new JLabel("Start or join a video meeting");
         subtitle.setFont(new Font("SansSerif", Font.PLAIN, 18));
         subtitle.setHorizontalAlignment(JLabel.CENTER);
@@ -111,9 +112,13 @@ public class MainPage extends JPanel {
 
         // Meeting controls
         meetingControlsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
-        CustomButton newMeetingButton = new CustomButton("New Meeting", true);
+        
+        // New Meeting button - will be enabled/disabled based on user role when page is shown
+        newMeetingButton = new CustomButton("New Meeting", true);
         newMeetingButton.setPreferredSize(new Dimension(150, 45));
         newMeetingButton.addActionListener(e -> app.showPage(App.MEETING_PAGE));
+        
+        meetingControlsPanel.add(newMeetingButton);
         
         PlaceholderTextField meetingCodeField = new PlaceholderTextField("Enter meeting code");
         meetingCodeField.setPreferredSize(new Dimension(250, 45));
@@ -126,7 +131,6 @@ public class MainPage extends JPanel {
             }
         });
 
-        meetingControlsPanel.add(newMeetingButton);
         meetingControlsPanel.add(meetingCodeField);
         meetingControlsPanel.add(joinButton);
         centerPanel.add(meetingControlsPanel, gbc);
@@ -154,6 +158,91 @@ public class MainPage extends JPanel {
         applyTheme();
     }
     
+    private void showProfileDropdown(java.awt.event.MouseEvent evt) {
+        UserProfile currentUser = app.getCurrentUser();
+        if (currentUser == null) {
+            return;
+        }
+        
+        Theme theme = ThemeManager.getInstance().getTheme();
+        
+        // Create popup menu
+        JPopupMenu profileMenu = new JPopupMenu();
+        profileMenu.setBackground(theme.getForeground());
+        profileMenu.setBorder(new EmptyBorder(10, 10, 10, 10));
+        
+        // Create a custom panel for the profile info
+        JPanel profilePanel = new JPanel();
+        profilePanel.setLayout(new BoxLayout(profilePanel, BoxLayout.Y_AXIS));
+        profilePanel.setBackground(theme.getForeground());
+        profilePanel.setBorder(new EmptyBorder(5, 10, 5, 10));
+        
+        // Profile avatar/initial
+        String initial = currentUser.getDisplayName().substring(0, 1).toUpperCase();
+        JLabel avatarLabel = new JLabel(initial) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(theme.getPrimary());
+                g2.fillOval(0, 0, getWidth(), getHeight());
+                super.paintComponent(g);
+                g2.dispose();
+            }
+        };
+        avatarLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
+        avatarLabel.setHorizontalAlignment(JLabel.CENTER);
+        avatarLabel.setVerticalAlignment(JLabel.CENTER);
+        avatarLabel.setPreferredSize(new Dimension(60, 60));
+        avatarLabel.setMaximumSize(new Dimension(60, 60));
+        avatarLabel.setForeground(Color.WHITE);
+        avatarLabel.setOpaque(false);
+        avatarLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+        
+        // Display name
+        JLabel nameLabel = new JLabel(currentUser.getDisplayName());
+        nameLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
+        nameLabel.setForeground(theme.getText());
+        nameLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+        
+        // Email
+        JLabel emailLabel = new JLabel(currentUser.getEmail());
+        emailLabel.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        emailLabel.setForeground(theme.getText());
+        emailLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+        
+        // Role
+        JLabel roleLabel = new JLabel("Role: " + currentUser.getRole());
+        roleLabel.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        roleLabel.setForeground(theme.getPrimary());
+        roleLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+        
+        // Logo URL (if present)
+        if (currentUser.getLogoUrl() != null && !currentUser.getLogoUrl().isEmpty()) {
+            JLabel logoLabel = new JLabel("Profile: " + currentUser.getLogoUrl());
+            logoLabel.setFont(new Font("SansSerif", Font.PLAIN, 11));
+            logoLabel.setForeground(theme.getText().darker());
+            logoLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+            profilePanel.add(Box.createRigidArea(new Dimension(0, 5)));
+            profilePanel.add(logoLabel);
+        }
+        
+        // Add components to panel
+        profilePanel.add(avatarLabel);
+        profilePanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        profilePanel.add(nameLabel);
+        profilePanel.add(Box.createRigidArea(new Dimension(0, 5)));
+        profilePanel.add(emailLabel);
+        profilePanel.add(Box.createRigidArea(new Dimension(0, 5)));
+        profilePanel.add(roleLabel);
+        
+        // Add panel to popup menu
+        profileMenu.add(profilePanel);
+        
+        // Show popup below the profile icon
+        profileMenu.show(evt.getComponent(), 0, evt.getComponent().getHeight() + 5);
+    }
+    
     private void applyTheme() {
         Theme theme = ThemeManager.getInstance().getTheme();
         setBackground(theme.getBackground());
@@ -172,6 +261,51 @@ public class MainPage extends JPanel {
         if (userInitialLabel != null) {
             userInitialLabel.setBackground(theme.getPrimary());
             userInitialLabel.setForeground(Color.WHITE);
+        }
+    }
+    
+    private void updateUserInterface() {
+        UserProfile currentUser = app.getCurrentUser();
+        
+        System.out.println("=== MainPage.updateUserInterface() called ===");
+        System.out.println("Current User: " + currentUser);
+        
+        // Update user initial label
+        if (userInitialLabel != null && currentUser != null) {
+            if (currentUser.getDisplayName() != null && !currentUser.getDisplayName().isEmpty()) {
+                userInitialLabel.setText(currentUser.getDisplayName().substring(0, 1).toUpperCase());
+                userInitialLabel.setToolTipText(currentUser.getDisplayName() + " (" + currentUser.getRole() + ")");
+            }
+        }
+        
+        // Update new meeting button based on user role
+        if (newMeetingButton != null && currentUser != null) {
+            String email = currentUser.getEmail();
+            boolean isInstructor = email != null && email.endsWith("@iitpkd.ac.in");
+            
+            System.out.println("Email: " + email);
+            System.out.println("Is Instructor: " + isInstructor);
+            
+            if (isInstructor) {
+                newMeetingButton.setEnabled(true);
+                newMeetingButton.setToolTipText(null);
+                System.out.println("New Meeting button ENABLED for instructor");
+            } else {
+                newMeetingButton.setEnabled(false);
+                newMeetingButton.setToolTipText("Only instructors can create new meetings");
+                System.out.println("New Meeting button DISABLED for student");
+            }
+        } else {
+            System.out.println("newMeetingButton: " + newMeetingButton + ", currentUser: " + currentUser);
+        }
+    }
+    
+    @Override
+    public void setVisible(boolean visible) {
+        super.setVisible(visible);
+        if (visible) {
+            // Update UI when page becomes visible
+            updateUserInterface();
         }
     }
     
