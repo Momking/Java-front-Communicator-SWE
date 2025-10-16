@@ -15,7 +15,7 @@ public class DarkTheme implements Theme {
 
     @Override
     public Color getText() {
-        return new Color(0xEEEEEE); // Almost white
+        return Color.WHITE; // Pure white for maximum visibility
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.conferencing.theme;
 
+import java.awt.Color;
+
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -61,24 +63,43 @@ public class ThemeManager {
             e.printStackTrace();
         }
 
+        // Panel colors
         UIManager.put("Panel.background", currentTheme.getBackground());
         UIManager.put("Panel.foreground", currentTheme.getText());
+        
+        // Label colors - ensure text is visible
         UIManager.put("Label.foreground", currentTheme.getText());
+        UIManager.put("Label.background", currentTheme.getBackground());
+        UIManager.put("Label.disabledForeground", currentTheme.getText().darker());
+        
+        // Button colors
         UIManager.put("Button.background", currentTheme.getPrimary());
-        UIManager.put("Button.foreground", currentTheme.getBackground());
+        UIManager.put("Button.foreground", Color.WHITE);
+        
+        // Text field colors
         UIManager.put("TextField.background", currentTheme.getForeground());
         UIManager.put("TextField.foreground", currentTheme.getText());
         UIManager.put("TextField.caretForeground", currentTheme.getText());
+        UIManager.put("TextField.inactiveForeground", currentTheme.getText());
+        
+        // Password field colors
         UIManager.put("PasswordField.background", currentTheme.getForeground());
         UIManager.put("PasswordField.foreground", currentTheme.getText());
         UIManager.put("PasswordField.caretForeground", currentTheme.getText());
+        UIManager.put("PasswordField.inactiveForeground", currentTheme.getText());
+        
+        // Checkbox colors
         UIManager.put("CheckBox.background", currentTheme.getBackground());
         UIManager.put("CheckBox.foreground", currentTheme.getText());
+        
+        // General text color
+        UIManager.put("text", currentTheme.getText());
+        UIManager.put("textText", currentTheme.getText());
+        UIManager.put("controlText", currentTheme.getText());
+        
+        // Viewport colors
         UIManager.put("Viewport.background", currentTheme.getBackground());
-
-        // For JLabels and other components on a transparent panel
-        UIManager.put("Label.background", currentTheme.getBackground());
-        UIManager.put("Component.opaque", false);
+        UIManager.put("Viewport.foreground", currentTheme.getText());
     }
 }
 
