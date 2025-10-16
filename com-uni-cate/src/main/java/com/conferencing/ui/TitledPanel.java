@@ -30,5 +30,11 @@ public class TitledPanel extends JPanel {
         g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 25, 25);
         g2d.dispose();
     }
+    
+    @Override
+    public void updateUI() {
+        super.updateUI();
+        repaint();
+    }
 }
 

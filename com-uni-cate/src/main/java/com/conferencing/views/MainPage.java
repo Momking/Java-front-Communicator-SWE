@@ -1,23 +1,40 @@
 package com.conferencing.views;
 
-import com.conferencing.App;
-import com.conferencing.ui.CustomButton;
-import com.conferencing.ui.PlaceholderTextField;
-import com.conferencing.theme.Theme;
-import com.conferencing.theme.ThemeManager;
-import com.conferencing.ui.TitledPanel;
-import com.conferencing.ui.ThemeToggleButton;
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.RenderingHints;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import javax.swing.Box;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+
+import com.conferencing.App;
+import com.conferencing.theme.Theme;
+import com.conferencing.theme.ThemeManager;
+import com.conferencing.ui.CustomButton;
+import com.conferencing.ui.PlaceholderTextField;
+import com.conferencing.ui.ThemeToggleButton;
+import com.conferencing.ui.TitledPanel;
 
 public class MainPage extends JPanel {
 
     private final App app;
     private JLabel userInitialLabel;
+    private JPanel headerPanel;
+    private JPanel centerPanel;
+    private JPanel meetingControlsPanel;
+    private JPanel themePanelWrapper;
 
     public MainPage(App app) {
         this.app = app;
@@ -28,11 +45,11 @@ public class MainPage extends JPanel {
         setLayout(new BorderLayout());
 
         // Header
-        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel = new JPanel(new BorderLayout());
         headerPanel.setBorder(new EmptyBorder(15, 25, 15, 25));
 
-        JLabel logoLabel = new JLabel("LOGO");
-        logoLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
+        JLabel logoLabel = new JLabel("Comm-Uni-Cate");
+        logoLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
         headerPanel.add(logoLabel, BorderLayout.WEST);
 
         JLabel dateTimeLabel = new JLabel(new SimpleDateFormat("HH:mm, E, MMM d").format(new Date()));
@@ -60,7 +77,7 @@ public class MainPage extends JPanel {
         add(headerPanel, BorderLayout.NORTH);
 
         // Center Panel
-        JPanel centerPanel = new JPanel(new GridBagLayout());
+        centerPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -71,7 +88,7 @@ public class MainPage extends JPanel {
         appTitle.setHorizontalAlignment(JLabel.CENTER);
         centerPanel.add(appTitle, gbc);
 
-        JLabel subtitle = new JLabel("Software Engineering Project by Batch B22");
+        JLabel subtitle = new JLabel("Start or join a video meeting");
         subtitle.setFont(new Font("SansSerif", Font.PLAIN, 18));
         subtitle.setHorizontalAlignment(JLabel.CENTER);
         centerPanel.add(subtitle, gbc);
@@ -79,14 +96,16 @@ public class MainPage extends JPanel {
         centerPanel.add(Box.createRigidArea(new Dimension(0, 50)), gbc);
 
         // Meeting controls
-        JPanel meetingControlsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
-        CustomButton newMeetingButton = new CustomButton("New meeting", true);
+        meetingControlsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
+        CustomButton newMeetingButton = new CustomButton("New Meeting", true);
+        newMeetingButton.setPreferredSize(new Dimension(150, 45));
         newMeetingButton.addActionListener(e -> app.showPage(App.MEETING_PAGE));
         
         PlaceholderTextField meetingCodeField = new PlaceholderTextField("Enter meeting code");
-        meetingCodeField.setPreferredSize(new Dimension(300, 45));
+        meetingCodeField.setPreferredSize(new Dimension(250, 45));
 
         CustomButton joinButton = new CustomButton("Join", true);
+        joinButton.setPreferredSize(new Dimension(120, 45));
         joinButton.addActionListener(e -> {
             if (!meetingCodeField.getText().trim().isEmpty()) {
                 app.showPage(App.MEETING_PAGE);
@@ -101,13 +120,14 @@ public class MainPage extends JPanel {
         // Theme Toggle Panel
         TitledPanel themePanel = new TitledPanel();
         themePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 15));
-        JLabel changeThemeLabel = new JLabel("CHANGE THEME");
+        JLabel changeThemeLabel = new JLabel("Theme:");
+        changeThemeLabel.setFont(new Font("SansSerif", Font.PLAIN, 14));
         
         themePanel.add(changeThemeLabel);
         themePanel.add(new ThemeToggleButton());
         
-        JPanel themePanelWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        themePanel.setPreferredSize(new Dimension(300, 80));
+        themePanelWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        themePanel.setPreferredSize(new Dimension(200, 70));
         themePanelWrapper.add(themePanel);
         
         gbc.gridy = 4;
@@ -116,16 +136,36 @@ public class MainPage extends JPanel {
         centerPanel.add(themePanelWrapper, gbc);
 
         add(centerPanel, BorderLayout.CENTER);
+        
+        applyTheme();
+    }
+    
+    private void applyTheme() {
+        Theme theme = ThemeManager.getInstance().getTheme();
+        setBackground(theme.getBackground());
+        if (headerPanel != null) {
+            headerPanel.setBackground(theme.getBackground());
+        }
+        if (centerPanel != null) {
+            centerPanel.setBackground(theme.getBackground());
+        }
+        if (meetingControlsPanel != null) {
+            meetingControlsPanel.setBackground(theme.getBackground());
+        }
+        if (themePanelWrapper != null) {
+            themePanelWrapper.setBackground(theme.getBackground());
+        }
+        if (userInitialLabel != null) {
+            userInitialLabel.setBackground(theme.getPrimary());
+            userInitialLabel.setForeground(Color.WHITE);
+        }
     }
     
     @Override
     public void updateUI() {
         super.updateUI();
-        // Update colors that UIManager doesn't handle automatically
-        if (ThemeManager.getInstance() != null && userInitialLabel != null) {
-            Theme theme = ThemeManager.getInstance().getTheme();
-            userInitialLabel.setBackground(theme.getPrimary());
-            userInitialLabel.setForeground(Color.WHITE);
+        if (ThemeManager.getInstance() != null) {
+            applyTheme();
         }
     }
 }

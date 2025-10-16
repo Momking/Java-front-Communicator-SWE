@@ -63,6 +63,7 @@ public class CustomButton extends JButton {
         // The theme manager will handle updates, but we can apply on creation
         if (ThemeManager.getInstance() != null) {
             applyTheme();
+            repaint();
         }
     }
 }

@@ -1,19 +1,35 @@
 package com.conferencing.views;
 
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridLayout;
+import java.awt.RenderingHints;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+
 import com.conferencing.App;
-import com.conferencing.ui.CustomButton;
 import com.conferencing.theme.Theme;
 import com.conferencing.theme.ThemeManager;
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import com.conferencing.ui.CustomButton;
 
 public class MeetingInterface extends JPanel {
 
     private final App app;
     private final JPanel videoGrid;
     private JPanel controlsPanel;
+    private JPanel buttonPanel;
+    private JPanel rightControls;
+    private JPanel chatPanel;
+    private JPanel contentPanel;
+    private boolean chatVisible = false;
+    private CustomButton chatButton;
 
     public MeetingInterface(App app) {
         this.app = app;
@@ -31,15 +47,59 @@ public class MeetingInterface extends JPanel {
         setLayout(new BorderLayout(10, 10));
         setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        add(videoGrid, BorderLayout.CENTER);
+        // Content panel to hold video grid and chat
+        contentPanel = new JPanel(new BorderLayout(10, 10));
+        contentPanel.add(videoGrid, BorderLayout.CENTER);
+        
+        // Create chat panel (initially hidden)
+        chatPanel = createChatPanel();
+        
+        add(contentPanel, BorderLayout.CENTER);
 
         controlsPanel = createControlsPanel();
         add(controlsPanel, BorderLayout.SOUTH);
+        
+        applyTheme();
     }
     
     private void addParticipant(String name) {
         ParticipantPanel panel = new ParticipantPanel(name);
         videoGrid.add(panel);
+    }
+    
+    private JPanel createChatPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        
+        JLabel chatTitle = new JLabel("Chat");
+        chatTitle.setFont(new Font("SansSerif", Font.BOLD, 18));
+        chatTitle.setBorder(new EmptyBorder(0, 0, 10, 0));
+        panel.add(chatTitle, BorderLayout.NORTH);
+        
+        // Empty chat area for now
+        JPanel chatArea = new JPanel();
+        panel.add(chatArea, BorderLayout.CENTER);
+        
+        return panel;
+    }
+    
+    private void toggleChat() {
+        chatVisible = !chatVisible;
+        
+        if (chatVisible) {
+            // Show chat panel on the right
+            contentPanel.add(chatPanel, BorderLayout.EAST);
+            chatPanel.setPreferredSize(new Dimension(300, 0));
+            chatButton.setText("Close Chat");
+        } else {
+            // Hide chat panel
+            contentPanel.remove(chatPanel);
+            chatButton.setText("Chat");
+        }
+        
+        contentPanel.revalidate();
+        contentPanel.repaint();
+        applyTheme();
     }
 
     private JPanel createControlsPanel() {
@@ -50,9 +110,9 @@ public class MeetingInterface extends JPanel {
         timeLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
         panel.add(timeLabel, BorderLayout.WEST);
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
-        buttonPanel.add(new CustomButton("VidOn", false));
-        buttonPanel.add(new CustomButton("Mute", false));
+        buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
+        buttonPanel.add(new CustomButton("Video", false));
+        buttonPanel.add(new CustomButton("Mic", false));
         buttonPanel.add(new CustomButton("Sound", false));
         buttonPanel.add(new CustomButton("Share", false));
         
@@ -62,9 +122,11 @@ public class MeetingInterface extends JPanel {
 
         panel.add(buttonPanel, BorderLayout.CENTER);
 
-        JPanel rightControls = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 0));
-        rightControls.add(new CustomButton("Chat", false));
-        JLabel copyMeetingLabel = new JLabel("COPY MEETING LINK");
+        rightControls = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 0));
+        chatButton = new CustomButton("Chat", false);
+        chatButton.addActionListener(e -> toggleChat());
+        rightControls.add(chatButton);
+        JLabel copyMeetingLabel = new JLabel("COPY LINK");
         copyMeetingLabel.setFont(new Font("SansSerif", Font.BOLD, 12));
         rightControls.add(copyMeetingLabel);
         panel.add(rightControls, BorderLayout.EAST);
@@ -72,21 +134,51 @@ public class MeetingInterface extends JPanel {
         return panel;
     }
     
-    @Override
-    public void updateUI() {
-        super.updateUI();
-        if (ThemeManager.getInstance() != null && controlsPanel != null) {
-            Theme theme = ThemeManager.getInstance().getTheme();
+    private void applyTheme() {
+        Theme theme = ThemeManager.getInstance().getTheme();
+        setBackground(theme.getBackground());
+        if (videoGrid != null) {
+            videoGrid.setBackground(theme.getBackground());
+        }
+        if (contentPanel != null) {
+            contentPanel.setBackground(theme.getBackground());
+        }
+        if (chatPanel != null) {
+            chatPanel.setBackground(theme.getForeground());
+            // Apply theme to chat area components
+            for(Component comp : chatPanel.getComponents()) {
+                if(comp instanceof JPanel) {
+                    comp.setBackground(theme.getForeground());
+                }
+            }
+        }
+        if (controlsPanel != null) {
+            controlsPanel.setBackground(theme.getBackground());
+            
             // Special case for end call button color
             for(Component comp : controlsPanel.getComponents()) {
                 if(comp instanceof JPanel) {
                      for(Component btn : ((JPanel)comp).getComponents()) {
-                         if(btn instanceof CustomButton && "End".equals(((CustomButton)btn).getText())) {
+                         if(btn instanceof CustomButton && ((CustomButton)btn).getText().contains("End")) {
                             btn.setBackground(theme.getAccent());
                          }
                      }
                 }
             }
+        }
+        if (buttonPanel != null) {
+            buttonPanel.setBackground(theme.getBackground());
+        }
+        if (rightControls != null) {
+            rightControls.setBackground(theme.getBackground());
+        }
+    }
+    
+    @Override
+    public void updateUI() {
+        super.updateUI();
+        if (ThemeManager.getInstance() != null) {
+            applyTheme();
         }
     }
     

@@ -4,10 +4,13 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import com.conferencing.App;
+
 public class ThemeManager {
     private static ThemeManager instance;
     private Theme currentTheme;
     private JFrame mainFrame;
+    private App app;
 
     private ThemeManager() {
         // Default to LightTheme
@@ -25,6 +28,10 @@ public class ThemeManager {
         this.mainFrame = frame;
         applyThemeToUIManager();
     }
+    
+    public void setApp(App app) {
+        this.app = app;
+    }
 
     public Theme getTheme() {
         return currentTheme;
@@ -39,6 +46,10 @@ public class ThemeManager {
         applyThemeToUIManager();
         if (mainFrame != null) {
             SwingUtilities.updateComponentTreeUI(mainFrame);
+            mainFrame.repaint();
+        }
+        if (app != null) {
+            app.refreshTheme();
         }
     }
 

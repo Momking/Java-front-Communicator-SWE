@@ -15,7 +15,7 @@ public class DarkTheme implements Theme {
 
     @Override
     public Color getText() {
-        return new Color(0xBBBBBB); // Light grey
+        return new Color(0xEEEEEE); // Almost white
     }
 
     @Override
