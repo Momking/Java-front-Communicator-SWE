@@ -1,15 +1,24 @@
 package com.conferencing.views;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.border.EmptyBorder;
+
 import com.conferencing.App;
 import com.conferencing.ui.CustomButton;
 import com.conferencing.ui.PlaceholderTextField;
 import com.conferencing.ui.ThemeToggleButton;
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class LoginPage extends JPanel {
 
