@@ -51,7 +51,7 @@ public class ChatAnalytics {
     }
 
     // ✅ Convert 2D array into JSON string manually
-    private String convertToJson(String[][] data) {
+    public String convertToJson(String[][] data) {
         StringBuilder sb = new StringBuilder("[");
         for (int i = 0; i < data.length; i++) {
             sb.append("{");
