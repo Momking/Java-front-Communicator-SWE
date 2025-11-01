@@ -3,43 +3,69 @@ package com.swe.controller.Meeting;
 import com.swe.controller.AbstractController;
 import com.swe.controller.ClientNode;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Optional;
 
+/**
+ * Provides high-level logic for creating and joining meetings.
+ * This class is used by the ControllerViewModel.
+ */
 public class MeetingServices {
 
-    /** Meetings mapped by meetingId. */
-    private final Map<String, MeetingSession> meetings = new HashMap<>();
-
     /**
-     * Creates a new meeting (only for instructors).
-     *
-     * @param userParam logged-in user
-     * @return Meeting if created, null if user is not an instructor
+     * Default constructor.
      */
-    public MeetingSession createMeeting(final UserProfile userParam) {
-        if (!"instructor".equals(userParam.getRole())) {
-            System.out.println("User is not instructor: " + userParam.getRole());
-            return null;
-        }
-        final MeetingSession meeting = new MeetingSession(userParam.getEmail());
-        meetings.put(meeting.getMeetingId(), meeting);
-        return meeting;
+    public MeetingServices() {
+        // Default constructor
     }
 
     /**
-     * Joins a meeting using meeting ID.
+     * Attempts to create a new meeting.
+     * Only users with the "instructor" role can create meetings.
      *
-     * @param userParam      logged-in user
-     * @param meetingIdParam meeting ID
-     * @return true if joined, false otherwise
+     * @param userParam The user attempting to create the meeting.
+     * @return A new MeetingSession if successful, or null otherwise.
      */
-    public boolean joinMeeting(final UserProfile userParam, final String meetingIdParam,
-                               ClientNode clientNode, ClientNode deviceNode, AbstractController networkController) {
-//        this.clientNode = clientNode;
-//        this.networkController = networkController;
+    public MeetingSession createMeeting(final UserProfile userParam) {
+        if (userParam == null || !"instructor".equals(userParam.getRole())) {
+            return null;
+        }
 
-        networkController.addUser(deviceNode, clientNode);
-        return meetings.containsKey(meetingIdParam);
+        // Call the static create method on MeetingSession
+        // which handles the cloud communication.
+        // FIXED: This now correctly handles the Optional<MeetingSession>
+        Optional<MeetingSession> sessionOptional = MeetingSession.create(userParam);
+
+        // Return the session if present, otherwise null
+        return sessionOptional.orElse(null);
+    }
+
+    /**
+     * Allows a user to join an existing meeting.
+     *
+     * @param userParam         The user joining.
+     * @param meetingIdParam    The ID of the meeting to join.
+     * @param clientNode        The server's network address.
+     * @param deviceNode        The joining user's network address.
+     * @param networkController The network module implementation.
+     * @return True if the meeting was found, false otherwise.
+     */
+    public boolean joinMeeting(
+            final UserProfile userParam,
+            final String meetingIdParam,
+            final ClientNode clientNode,
+            final ClientNode deviceNode,
+            final AbstractController networkController) {
+
+        // Find the meeting (e.g., by calling the Cloud API)
+        final MeetingSession session = MeetingSession.find(meetingIdParam);
+
+        if (session != null) {
+            // The meeting exists. Tell the network module to add this user.
+            networkController.addUser(deviceNode, clientNode);
+            return true;
+        }
+
+        // Meeting not found
+        return false;
     }
 }
