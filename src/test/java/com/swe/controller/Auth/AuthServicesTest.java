@@ -2,6 +2,7 @@ package com.swe.controller.Auth;
 
 import com.google.api.client.auth.oauth2.Credential;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
 import com.swe.controller.Meeting.UserProfile;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -76,6 +77,7 @@ public class AuthServicesTest {
      * @throws Exception if Google login fails
      */
     @Test
+    @Disabled("Google OAuth test disabled to prevent browser opening")
     public void testGoogleLoginStudent() throws Exception {
         final DataStore dataStore = new DataStore();
         final GoogleAuthServices googleAuthService = new GoogleAuthServices();
