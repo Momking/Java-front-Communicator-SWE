@@ -16,6 +16,13 @@
   <name>Module - Controller</name>
   <packaging>jar</packaging>
 
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
   <dependencies>
     <!-- JUnit for testing -->
     <dependency>
@@ -51,6 +58,13 @@
       <artifactId>commons-logging</artifactId>
       <version>1.2</version>
     </dependency>
+
+      <dependency>
+          <groupId>com.github.enchanteddev</groupId>
+          <artifactId>socketry</artifactId>
+          <version>V1</version>
+      </dependency>
+
   </dependencies>
 
   <build>
